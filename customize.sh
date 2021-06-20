@@ -30,9 +30,9 @@ echo "id=sgame_priv" >$MODPATH/module.prop
 echo "name=王者特权防异常" >>$MODPATH/module.prop
 echo -n "version=v0.0.1" >>$MODPATH/module.prop
 echo ${latest_v2ray_version} >>$MODPATH/module.prop
-echo "versionCode=20210618" >>$MODPATH/module.prop
+echo "versionCode=20210620" >>$MODPATH/module.prop
 echo "author=ywlin" >>$MODPATH/module.prop
-echo "description=王者荣耀特权防异常模块（本模块不能代替代理类软件，不懂如何使用的请查看说明文档）" >>$MODPATH/module.prop
+echo "description=王者荣耀特权防异常模块（本模块不能代替代理类软件，不懂如何使用的请查看说明文档: https://github.com/lyzcren/sgame_priv_protect#readme ）" >>$MODPATH/module.prop
 
 set_perm_recursive $MODPATH 0 0 0755 0644
 set_perm $MODPATH/service.sh 0 0 0755
