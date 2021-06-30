@@ -9,6 +9,7 @@ kit_file="/data/priv/config/Kitsunebi"
 v2ray_file="/data/priv/config/v2rayNG"
 freeze_proxy_app="/data/priv/config/freeze_proxy_app"
 freeze_self="/data/priv/config/freeze_self"
+# process_num_log_file="/data/priv/.system/.process_num_log"
 
 validate_ip() {
   # 查询 IP
@@ -86,12 +87,17 @@ start_service() {
     # 查询进程数
     process_num="$(ps -ef | grep -w ${proc_name} | grep -v grep | wc -l)"
     echo "${process_num}" >${process_num_file}
+    # # 测试数据写入文件
+    # if [ ${process_num} -gt ${pre_process_num} ]; then
+    #   echo $(date '+%Y-%m-%d %H:%M:%S') ":" ${pre_process_num} "/" ${process_num} >>"${process_num_log_file}"
+    # fi
+
     if [[ ${process_num} -gt ${pre_process_num} && ${pre_process_num} -lt 4 ]]; then
       handle_sgame_start
     elif [[ ${process_num} -lt ${pre_process_num} && ${process_num} -le 2 ]]; then
       handle_sgame_stop
     fi
-    sleep 0.5
+    sleep 1
   done
 }
 
