@@ -26,6 +26,12 @@ if [[ ! -f "/data/priv/config/.Kitsunebi" && ! -f "/data/priv/config/Kitsunebi" 
   touch /data/priv/config/.Kitsunebi
 fi
 
+ui_print "- 生成默认配置（上海）."
+echo "上海" >/data/priv/local.config
+ui_print "- 设置Kitsunebi自启动."
+rm /data/priv/config/.Kitsunebi
+touch /data/priv/config/Kitsunebi
+
 unzip -j -o "${ZIPFILE}" 'priv/scripts/*' -d $MODPATH/scripts >&2
 unzip -j -o "${ZIPFILE}" 'service.sh' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'uninstall.sh' -d $MODPATH >&2
