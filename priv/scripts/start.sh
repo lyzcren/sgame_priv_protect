@@ -43,7 +43,7 @@ handle_sgame_start() {
   start_proxy
   success_start_proxy=$?
   if [ $success_start_proxy -gt 0 ]; then
-    sleep 3
+    sleep 5
   fi
   validate_ip
   ip_valid=$?
