@@ -42,7 +42,7 @@ rm -rf $MODPATH/module.prop
 touch $MODPATH/module.prop
 echo "id=sgame_priv" >$MODPATH/module.prop
 echo "name=王者特权防异常" >>$MODPATH/module.prop
-echo -n "version=v0.2.0" >>$MODPATH/module.prop
+echo -n "version=v0.3.0" >>$MODPATH/module.prop
 echo ${latest_v2ray_version} >>$MODPATH/module.prop
 echo "versionCode=20210708" >>$MODPATH/module.prop
 echo "author=ywlin" >>$MODPATH/module.prop

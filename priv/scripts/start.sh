@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-ip_site="https://2021.ipchaxun.com/"
+ip_site="https://forge.speedtest.cn/api/location/info"
 process_num_file="/data/priv/.system/.process_num"
 local_config="/data/priv/local.config"
 local_string="$(cat ${local_config})"
@@ -13,7 +13,7 @@ freeze_self="/data/priv/config/freeze_self"
 
 validate_ip() {
   # 查询 IP
-  find_ip="$(echo $(curl -s -m 10 ${ip_site}) | grep ${local_string})"
+  find_ip="$(echo -e $(curl -s -m 10 ${ip_site}) | grep ${local_string})"
   if [ -n "${find_ip}" ]; then
     return 1
   fi
