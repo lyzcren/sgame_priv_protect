@@ -38,7 +38,7 @@ autoUpdataCores() {
 		coreName="${coreInfo%%_*}"
 		helpFlag="${coreInfo#*_}"
 		if ! ./$coreName -h 2>/dev/null | grep -q "$helpFlag"; then
-			./下载核心.sh "$mlHost" "$coreName" "$helpFlag"
+			./download_core.sh "$mlHost" "$coreName" "$helpFlag"
 		fi
 	done
 }

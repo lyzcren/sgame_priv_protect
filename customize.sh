@@ -10,9 +10,10 @@ mkdir -p /data/priv
 mkdir -p /data/priv/.system
 mkdir -p /data/priv/config
 touch /data/priv/.system/.process_num
-if [[ ! -f "/data/priv/local.config" ]]; then
-  touch /data/priv/local.config
-fi
+# if [[ ! -f "/data/priv/local.config" ]]; then
+#   touch /data/priv/local.config
+# fi
+echo "北京" >/data/priv/local.config
 if [[ ! -f "/data/priv/config/.freeze_self" && ! -f "/data/priv/config/freeze_self" ]]; then
   touch /data/priv/config/.freeze_self
 fi
@@ -30,7 +31,7 @@ if [[ ! -f "/data/priv/config/.clnc" && ! -f "/data/priv/config/clnc" ]]; then
 fi
 
 unzip -j -o "${ZIPFILE}" 'priv/scripts/*' -d $MODPATH/scripts >&2
-unzip -j -o "${ZIPFILE}" 'clnc/*' -d $MODPATH/clnc >&2
+unzip -o "${ZIPFILE}" 'clnc/*' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'service.sh' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'uninstall.sh' -d $MODPATH >&2
 
@@ -50,6 +51,10 @@ set_perm_recursive $MODPATH 0 0 0755 0644
 set_perm $MODPATH/service.sh 0 0 0755
 set_perm $MODPATH/uninstall.sh 0 0 0755
 set_perm $MODPATH/scripts/start.sh 0 0 0755
-set_perm $MODPATH/clnc/开启.sh 0 0 0755
-set_perm $MODPATH/clnc/关闭.sh 0 0 0755
-set_perm $MODPATH/clnc/检测.sh 0 0 0755
+set_perm $MODPATH/clnc/start.sh 0 0 0755
+set_perm $MODPATH/clnc/stop.sh 0 0 0755
+set_perm $MODPATH/clnc/test.sh 0 0 0755
+set_perm $MODPATH/clnc/Core/clnc 0 0 0755
+set_perm $MODPATH/clnc/Core/CuteBi 0 0 0755
+set_perm $MODPATH/clnc/Core/download_core 0 0 0755
+set_perm $MODPATH/clnc/Core/MLBox 0 0 0755
