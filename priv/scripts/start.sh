@@ -1,5 +1,6 @@
 #!/system/bin/sh
 
+MODDIR=${0%/*}
 ip_site="https://forge.speedtest.cn/api/location/info"
 process_num_file="/data/priv/.system/.process_num"
 local_config="/data/priv/local.config"
@@ -7,6 +8,7 @@ local_string="$(cat ${local_config})"
 proc_name="com.tencent.tmgp.sgame"
 kit_file="/data/priv/config/Kitsunebi"
 v2ray_file="/data/priv/config/v2rayNG"
+clnc_file="/data/priv/config/clnc"
 freeze_proxy_app="/data/priv/config/freeze_proxy_app"
 freeze_self="/data/priv/config/freeze_self"
 # process_num_log_file="/data/priv/.system/.process_num_log"
@@ -21,7 +23,10 @@ validate_ip() {
 }
 
 start_proxy() {
-  if [ -f "${kit_file}" ]; then
+  if [ -f "${clnc_file}" ]; then
+    ${MODDIR}/../clnc/Core/CuteBi start >/dev/null 2>&1
+    return 1
+  elif [ -f "${kit_file}" ]; then
     pm enable fun.kitsunebi.kitsunebi4android >/dev/null 2>&1
     am start fun.kitsunebi.kitsunebi4android/.ui.StartVpnActivity >/dev/null 2>&1
     return 1
@@ -40,6 +45,13 @@ handle_sgame_start() {
   if [ ! -n "${local_string}" ]; then
     return 0
   fi
+  # 验证IP，IP通过则不开启代理
+  validate_ip
+  ip_valid=$?
+  if [ $ip_valid -eq 1 ]; then
+    return 0
+  fi
+  # 开启代理
   start_proxy
   success_start_proxy=$?
   if [ $success_start_proxy -gt 0 ]; then
@@ -59,7 +71,9 @@ handle_sgame_stop() {
 }
 
 freeze_proxy() {
-  if [[ -f "$freeze_proxy_app" && -f "${kit_file}" ]]; then
+  if [[ -f "${clnc_file}" ]]; then
+    ${MODDIR}/../clnc/Core/CuteBi stop >/dev/null 2>&1
+  elif [[ -f "$freeze_proxy_app" && -f "${kit_file}" ]]; then
     pm disable fun.kitsunebi.kitsunebi4android >/dev/null 2>&1
   elif [[ -f "$freeze_proxy_app" && -f "${v2ray_file}" ]]; then
     pm disable com.v2ray.ang >/dev/null 2>&1

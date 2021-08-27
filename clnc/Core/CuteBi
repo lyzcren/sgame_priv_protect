@@ -1,0 +1,344 @@
+### Author: CuteBi ###
+#### Version: 0.9.3 ####
+#####    tun    #####
+
+#检查脚本更新
+checkUpdate() {
+	[ -f 'Changes.txt' ] && {
+		echo "检测到新版本(更新后请删除Core目录下Changes.txt文件):"
+		cat Changes.txt
+	}
+	if type curl; then
+		httpCmd='curl'
+	elif type wget; then
+		httpCmd='wget -O -'
+	else
+		return
+	fi &>/dev/null
+	{
+		sleep 10
+		version='0.9.3'
+		changes=`$httpCmd "http://pros.cutebi.flashproxy.cn/clncScript/Changes.php?version=$version" 2>/dev/null`
+		if [ "$?" = '0' ]; then
+			if echo "$changes" | grep -q 'no update'; then
+				rm -f Changes.txt
+			elif echo "$changes" | grep -q "$version"; then
+				cat >Changes.txt <<-EOF
+				$changes
+				EOF
+			fi
+		fi
+	} &
+}
+
+
+#自动更新核心
+autoUpdataCores() {
+	for coreInfo in 'clnc_clnc'; do
+		coreName="${coreInfo%%_*}"
+		helpFlag="${coreInfo#*_}"
+		if ! ./$coreName -h 2>/dev/null | grep -q "$helpFlag"; then
+			./下载核心.sh "$mlHost" "$coreName" "$helpFlag"
+		fi
+	done
+}
+
+
+#读取模式文件  得到所需内容
+readModeFile() {
+	[ ! -f "../$modeName" -a -f "../${modeName}.conf" ] && modeName="${modeName}.conf"
+	tunDevice=`grep '^ *tunDevice' "../$modeName" | grep -o '= *[^\;]*'`
+	tunDevice=${tunDevice#=}
+}
+
+#通过包名得到uid
+getPackageUid() {
+	packageName=${1%%_*}  #过滤包名后面的端口
+	if echo $packageName | grep -q '[A-Za-z]'; then
+		packageInfo=`grep -oE "^$packageName ([0-9])+" /data/system/packages.list`
+		[ $? != 0 ] && return 1
+		echo "$1" | grep -qE '_([0-9])+' && \
+			echo "${packageInfo#* }_${1#*_}" || \
+			echo "${packageInfo#* }"
+	else
+		echo "$1"
+	fi
+}
+
+#同时执行iptables和ip6tables
+ipts() {
+	iptables $@
+	ip6tables $@
+}
+
+#应用端口操作
+appsPortsAction() {
+	[ -n "$1" ] && appProtocol="-p $1"
+	apps="$2"
+	jumpAction="$3"
+	for app in $apps; do
+		uid=`getPackageUid $app` || continue
+		uid="${uid%_*}"
+		ports=`echo $uid|grep -q '_' && echo "${uid#*_}"`
+		ports="${ports//,/ }"
+		if [ -z "$ports" ]; then
+			ipts -t mangle -I TUN_OUTPUT $appProtocol -m owner --uid $uid -j $jumpAction
+			[ "$app" != "$uid" ] && \
+				grep -q "uid n=\"999${uid%_*}\"" '/data/system/appops.xml' && \
+				ipts -t mangle -I TUN_OUTPUT $appProtocol -m owner --uid 999${uid} -j $jumpAction
+		else
+			for p in $appPorts; do
+				ipts -t mangle -I TUN_OUTPUT $appProtocol --dport $p -m owner --uid $appUid -j $jumpAction
+				[ "$app" != "$uid" ] && \
+					grep -q "uid n=\"999${uid%_*}\"" '/data/system/appops.xml' && \
+					ipts -t mangle -I TUN_OUTPUT $appProtocol -m owner --uid 999${uid} -j $jumpAction
+			done
+		fi
+	done
+}
+
+#放行
+allowService() {
+	#IP放行
+	for ip in $allowIPs; do
+		ipts -t mangle -I TUN_OUTPUT -d $ip -j ACCEPT
+		ipts -t mangle -I TUN_PREROUTING -d $ip -j ACCEPT
+	done 2>/dev/null  #ipv6跟ipv4不兼容会提示错误
+	#本地UDP放行
+	appsPortsAction udp "$localUdpAllowApps" ACCEPT
+	#本地TCP放行
+	appsPortsAction tcp "$localTcpAllowApps" ACCEPT
+	#本地全局放行
+	appsPortsAction '' "$localAllowApps" ACCEPT
+	#共享全局放行
+	if [ "$shareAllow" = '1' ]; then
+		ipts -t mangle -F TUN_PREROUTING
+	else
+		#共享UDP放行
+		for p in $shareAllowUdpPorts; do
+			ipts -t mangle -I TUN_PREROUTING -p udp --dport $p -j ACCEPT
+		done
+		#共享TCP放行
+		for p in $shareAllowTcpPorts; do
+			ipts -t mangle -I TUN_PREROUTING -p tcp --dport $p -j ACCEPT
+		done
+	fi
+}
+
+#配置主要ip[6]tables
+set_iptables() {
+	ipts -t mangle -N TUN_OUTPUT 2>&-
+	ipts -t mangle -N TUN_PREROUTING 2>&-
+	#WiFi代理规则
+	[ "$allowWifi" = '1' ] && \
+		ipts -t mangle -A TUN_OUTPUT -o wlan+ -j ACCEPT || \
+		#标记WiFi(WiFi的内网可能是192.168/16和fe80::/10)的DNS
+		ipts -t mangle -A TUN_OUTPUT -o wlan+ -p 17 --dport 53 -j  MARK --set-xmark 999
+	##开启只代理部分应用
+	if [ -n "$onlyProxyApps" ]; then
+		appsPortsAction '' "$onlyProxyApps" 'MARK --set-xmark 999'
+	else
+		##本机规则
+		grep -q 'conntrack' '/proc/net/ip_tables_matches' && \
+			conntrackModule='conntrack --ctstate' || \
+			conntrackModule='state --state'
+		ipts -t mangle -A TUN_OUTPUT -o tun+ -j ACCEPT
+		if [ "$denyKernel" = '1' -o "$denyKernel" = '2' ]; then
+			[ "$denyKernel" = '2' ] && protocol='-p tcp'
+			ipts -t mangle -A TUN_OUTPUT $protocol -m owner ! --uid 0-999999999 -j DROP || \
+				ipts -t mangle -A TUN_OUTPUT $protocol -m owner ! --uid 0-99999 -j DROP  #部分设备uid最大值为99999
+		fi 2>/dev/null
+		ipts -t mangle -A TUN_OUTPUT -m $conntrackModule NEW -j CONNMARK --set-xmark 999
+		ipts -t mangle -A TUN_OUTPUT -m connmark --mark 999 -j CONNMARK --restore-mark
+		##共享规则
+		ipts -t mangle -A TUN_PREROUTING -m $conntrackModule INVALID -j DROP
+		ipts -t mangle -A TUN_PREROUTING -m $conntrackModule NEW -j CONNMARK --set-xmark 999
+		ipts -t mangle -A TUN_PREROUTING -m connmark --mark 999 -j CONNMARK --restore-mark
+		ipts -t mangle -I PREROUTING ! -i tun+ -g TUN_PREROUTING
+		#共享的数据包在FORWARD放行
+		ipts -I FORWARD -i tun+ -j ACCEPT
+		ipts -I FORWARD -o tun+ -j ACCEPT
+	fi
+	if [ "$onlyProxyShare" != '1' ]; then
+		iptables -t mangle -I OUTPUT ! -o lo ! -d 192.168/16 -m owner ! --gid 3004 -g TUN_OUTPUT
+		ip6tables -t mangle -I OUTPUT ! -o lo ! -d fe80::/10 -m owner ! --gid 3004 -g TUN_OUTPUT
+	fi
+	#放行ipv6则清空ip6tables规则
+	if [ "$ipv6Opt" = 'allow' ]; then
+		ip6tables -t mangle -D PREROUTING ! -i tun+ -g TUN_PREROUTING
+		ip6tables -t mangle -D OUTPUT ! -o lo ! -d fe80::/10 -m owner ! --gid 3004 -g TUN_OUTPUT
+	elif [ "$ipv6Opt" = 'denyNoKernel' ]; then
+		ip6tables -t mangle -F TUN_OUTPUT
+		ip6tables -t mangle -A TUN_OUTPUT -m owner --uid 0-999999999 -j MARK --set-xmark 999 || \
+			ip6tables -t mangle -A TUN_OUTPUT -m owner --uid 0-99999 -j MARK --set-xmark 999
+	fi
+}
+
+#ip路由
+ip_route() {
+	ip rule add fwmark 999 lookup 101 pref 99
+	ip route add default dev $tunDevice table 101
+	if [ "${ipv6Opt:0:4}" = 'deny' ]; then  #禁网ipv6
+		ip -6 rule add fwmark 999 unreachable pref 99
+	elif [ "$ipv6Opt" != 'allow' ]; then  #代理ipv6
+		ip -6 rule add fwmark 999 lookup 101 pref 99
+		ip -6 route add default dev $tunDevice table 101
+	fi
+}
+
+#创建tun设备
+createTun() {
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+	[ ! -e "/dev/net/tun" ] && mkdir -p /dev/net && ln -s /dev/tun /dev/net/tun
+}
+
+#clnc运行状态检测
+clncRunStatus() {
+	if [ -f "/proc/$(grep -o ^[0-9]* clnc.pid)/cwd/CuteBi" ]; then
+		echo '✔  clnc 正在运行'
+	else
+		echo '✘  clnc 没有运行'
+	fi
+}
+
+#状态检查
+statusCheck() {
+	##网卡和IP检测
+	ip addr | grep -E "^[0-9]+:|inet" | while read line; do
+		if echo $line|grep -qE "^[0-9]+:"; then
+			devName=`echo $line|grep -iE "^[0-9]+: [^:]+:"`
+			devName=${devName#*: }
+			devName=${devName%%:*}
+			typeset -L17 devName=${devName%@*} 2>/dev/null
+		else
+			ipAddr=${line#* }
+			ipAddr=${ipAddr%% *}
+			echo "$devName$ipAddr"
+		fi
+	done
+	echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+	echo
+	clncRunStatus
+	ipts -t mangle -N TUN_OUTPUT 2>&-
+	ipts -t mangle -N TUN_PREROUTING 2>&-
+	echo
+	echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+	echo '❁ ipv4 mangle表 PREROUTING链:'
+	iptables -t mangle -S PREROUTING
+	echo '✺ ipv4 mangle表 TUN_PREROUTING链:'
+	iptables -t mangle -S TUN_PREROUTING
+	echo '❁ ipv4 filter表 FORWARD链:'
+	iptables -S FORWARD
+	echo '✺ ipv4 mangle表 OUTPUT链:'
+	iptables -t mangle -S OUTPUT
+	echo '❁ ipv4 mangle表 TUN_OUTPUT链:'
+	iptables -t mangle -S TUN_OUTPUT
+	echo
+	echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+	echo '❁ ipv6 mangle表 PREROUTING链:'
+	ip6tables -t mangle -S PREROUTING
+	echo '✺ ipv6 mangle表 TUN_PREROUTING链:'
+	ip6tables -t mangle -S TUN_PREROUTING
+	echo '❁ ipv6 filter表 FORWARD链:'
+	ip6tables -S FORWARD
+	echo '✺ ipv6 mangle表 OUTPUT链:'
+	ip6tables -t mangle -S OUTPUT
+	echo '❁ ipv6 mangle表 TUN_OUTPUT链:'
+	ip6tables -t mangle -S TUN_OUTPUT
+}
+
+#关闭脚本
+clearServer() {
+	#关闭程序
+	pid=`grep -o ^[0-9]* clnc.pid 2>/dev/null`
+	[ -f "/proc/$pid/cwd/CuteBi" ] && kill $pid
+	#清理ip路由规则
+	{
+		while ip rule del pref 99; do :;done
+		while ip -6 rule del pref 99; do :;done
+		while ipts -t mangle -D OUTPUT ! -o lo -m owner ! --gid 3004 -g TUN_OUTPUT; do :;done
+		while ipts -t mangle -D PREROUTING ! -i tun+ -g TUN_PREROUTING; do :;done
+		while iptables -t mangle -D OUTPUT ! -o lo ! -d 192.168/16 -m owner ! --gid 3004 -g TUN_OUTPUT; do :;done
+		while ip6tables -t mangle -D OUTPUT ! -o lo ! -d fe80::/10 -m owner ! --gid 3004 -g TUN_OUTPUT; do :;done
+		ipts -t mangle -F TUN_PREROUTING
+		ipts -t mangle -F TUN_OUTPUT
+		ipts -t mangle -Z TUN_PREROUTING
+		ipts -t mangle -Z TUN_OUTPUT
+		ipts -t mangle -X TUN_PREROUTING
+		ipts -t mangle -X TUN_OUTPUT
+		while ipts -D FORWARD -i tun+ -j ACCEPT; do :;done
+		while ipts -D FORWARD -o tun+ -j ACCEPT; do :;done
+	} 2>/dev/null
+}
+
+#启动脚本
+startServer() {
+	readModeFile  #读取模式文件
+	createTun  #创建tun
+	clearServer  #清理规则
+	autoUpdataCores  #自动更新核心
+	set_iptables  #设置ip[6]tables代理规则
+	allowService  #执行放行代码
+	#启动clnc
+	[ -n "$clnc_dns" ] && export CLNC_INIT_CONFIG_DNS="$clnc_dns"
+	./clnc -p clnc.pid -g 3004 -c "../$modeName"
+	ip_route  #ip路由
+	##重启数据
+	if [ "$restartData" = '1' ]; then
+		svc data disable
+		sleep 0.2
+		svc data enable
+	fi &
+}
+
+#ip[6]tables命令获取锁失败则重新执行
+aliasIptables() {
+	iptables_path=`which iptables`
+	ip6tables_path=`which ip6tables`
+	if iptables --help | grep -q "\-w"; then
+		iptables() { "${iptables_path:-/system/bin/iptables}" -w $@; }
+		ip6tables() { "${ip6tables_path:-/system/bin/ip6tables}" -w $@; }
+	else
+		iptables() {
+			result=`"${iptables_path:-/system/bin/iptables}" $@ 2>&1`
+			[ "$?" = '4' ] && iptables $@ || echo -E "$result"|grep -qE 'xtables block|xtables_lock wait = [1-9]'
+		}
+		ip6tables() {
+			result=`"${ip6tables_path:-/system/bin/ip6tables}" $@ 2>&1`
+			[ "$?" = '4' ] && ip6tables $@ || echo -E "$result"|grep -qE 'xtables block|xtables_lock wait = [1-9]'
+		}
+	fi
+}
+
+#读取脚本配置文件
+readConfigFile() {
+	eval "`grep -v '^\;' ../config.ini`"  #ini文件;开头是注释
+}
+
+#脚本入口
+main() {
+	cd "${1%/*}" 
+	chmod 777 *
+	readConfigFile
+	aliasIptables
+	case "$2" in
+		'stop')
+			clearServer
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+			clncRunStatus
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+		;;
+		'start')
+			startServer
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+			clncRunStatus
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+			checkUpdate
+		;;
+		'status')
+			statusCheck
+		;;
+	esac
+}
+
+main "$0" "$1" 2>&1
