@@ -24,7 +24,7 @@ validate_ip() {
 
 start_proxy() {
   if [ -f "${clnc_file}" ]; then
-    ${MODDIR}/../clnc/Core/CuteBi start >/dev/null 2>&1
+    ${MODDIR}/CuteBi start >/dev/null 2>&1
     return 1
   elif [ -f "${kit_file}" ]; then
     pm enable fun.kitsunebi.kitsunebi4android >/dev/null 2>&1
@@ -72,7 +72,7 @@ handle_sgame_stop() {
 
 freeze_proxy() {
   if [[ -f "${clnc_file}" ]]; then
-    ${MODDIR}/../clnc/Core/CuteBi stop >/dev/null 2>&1
+    ${MODDIR}/CuteBi stop >/dev/null 2>&1
   elif [[ -f "$freeze_proxy_app" && -f "${kit_file}" ]]; then
     pm disable fun.kitsunebi.kitsunebi4android >/dev/null 2>&1
   elif [[ -f "$freeze_proxy_app" && -f "${v2ray_file}" ]]; then
