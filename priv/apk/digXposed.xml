@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="version_name">0.1.0</string>
+    <int name="version_code" value="40200010" />
+    <boolean name="switchModEx" value="true" />
+    <boolean name="switchModule" value="true" />
+</map>

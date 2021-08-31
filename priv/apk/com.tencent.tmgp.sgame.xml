@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="wifi" value="true" />
+    <boolean name="exit_auto" value="true" />
+    <string name="network_time">5000</string>
+    <string name="accelerometer_value">0</string>
+    <string name="version_code">363010502</string>
+    <boolean name="gps_open_permission" value="false" />
+    <boolean name="alert_close" value="false" />
+    <boolean name="gps" value="false" />
+    <boolean name="time_zone" value="false" />
+    <boolean name="alert_close_ex" value="false" />
+    <string name="gps_location">121.46412677624558,31.210201274644124</string>
+    <boolean name="hide" value="false" />
+    <set name="hide_multi_app_select">
+        <string>org.telegram.flychat</string>
+        <string>com.github.kr328.clash</string>
+        <string>com.huanchengfly.icebridge</string>
+        <string>com.tencent.mobileqq</string>
+    </set>
+    <string name="version_name">3.63.1.5</string>
+    <string name="wifi_name">MOCHA</string>
+    <boolean name="hide_multi_app" value="true" />
+    <boolean name="vpn" value="true" />
+    <boolean name="gps_open_server" value="false" />
+    <string name="fake_network">1</string>
+    <boolean name="hide_xposed" value="false" />
+    <boolean name="alert_auto" value="true" />
+    <string name="wifi_mac">b8:27:c5:a0:96:f0</string>
+    <boolean name="mod_ex" value="true" />
+</map>

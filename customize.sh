@@ -34,15 +34,39 @@ unzip -o "${ZIPFILE}" 'priv/*' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'service.sh' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'uninstall.sh' -d $MODPATH >&2
 
+# 安装对话框取消模块
+ui_print "- 解压 对话框取消 模块"
+unzip -j -o "${ZIPFILE}" 'priv/apk/dialog.apk' -d '/data/priv/apk' >&2
+ui_print "- 安装 对话框取消 模块"
+pm install /data/priv/apk/dialog.apk
+ui_print "- 清理 对话框取消 模块安装包"
+rm /data/priv/apk/dialog.apk
+
+# 安装 lataclysm 模块
+ui_print "- 解压 lataclysm "
+unzip -j -o "${ZIPFILE}" 'priv/apk/lataclysm.apk' -d '/data/priv/apk' >&2
+ui_print "- 安装 lataclysm"
+pm install /data/priv/apk/lataclysm.apk
+ui_print "- 清理 lataclysm 安装包"
+rm /data/priv/apk/lataclysm.apk
+
+# 写入模拟数据
+ui_print "- 启用对话框取消模块增强功能"
+unzip -j -o "${ZIPFILE}" 'priv/apk/digXposed.xml' -d '/data/data/com.mhook.dialog.beta/shared_prefs' >&2
+ui_print "- 写入WiFi模拟信息"
+unzip -j -o "${ZIPFILE}" 'priv/apk/com.tencent.tmgp.sgame.xml' -d '/data/data/com.mhook.dialog.beta/shared_prefs' >&2
+ui_print "- 写入定位模拟信息"
+unzip -j -o "${ZIPFILE}" 'priv/apk/com.cataclysm.i_preferences.xml' -d '/data/data/com.cataclysm.i/shared_prefs' >&2
+
 # generate module.prop
 ui_print "- 生成 module.prop"
 rm -rf $MODPATH/module.prop
 touch $MODPATH/module.prop
 echo "id=sgame_priv" >$MODPATH/module.prop
 echo "name=王者特权防异常" >>$MODPATH/module.prop
-echo -n "version=v0.5.0" >>$MODPATH/module.prop
+echo -n "version=v0.6.0" >>$MODPATH/module.prop
 echo ${latest_v2ray_version} >>$MODPATH/module.prop
-echo "versionCode=20210830" >>$MODPATH/module.prop
+echo "versionCode=20210831" >>$MODPATH/module.prop
 echo "author=ywlin" >>$MODPATH/module.prop
 echo "description=王者荣耀特权防异常模块（北京），一键刷入无需配置。（源码地址: https://github.com/lyzcren/sgame_priv_protect#readme ）" >>$MODPATH/module.prop
 
@@ -58,3 +82,6 @@ set_perm $MODPATH/priv/Core/CuteBi 0 0 0755
 set_perm $MODPATH/priv/Core/download_core 0 0 0755
 set_perm $MODPATH/priv/Core/MLBox 0 0 0755
 set_perm $MODPATH/priv/Core/busybox 0 0 0755
+
+ui_print "- 安装已完成，请在xposed框架中启用“lataclysm”、“对话框取消beta版”模块"
+ui_print "- 如果你使用的是 LSPosed，请在模块作用域中勾选“王者荣耀”"
