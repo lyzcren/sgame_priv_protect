@@ -4,6 +4,8 @@
 #####################
 SKIPUNZIP=1
 
+local_string="北京"
+
 # prepare v2ray execute environment
 ui_print "- 准备priv运行环境."
 mkdir -p /data/priv
@@ -13,7 +15,7 @@ touch /data/priv/.system/.process_num
 # if [[ ! -f "/data/priv/local.config" ]]; then
 #   touch /data/priv/local.config
 # fi
-echo "北京" >/data/priv/local.config
+echo "${local_string}" >/data/priv/local.config
 if [[ ! -f "/data/priv/config/.freeze_self" && ! -f "/data/priv/config/freeze_self" ]]; then
   touch /data/priv/config/.freeze_self
 fi
@@ -35,20 +37,30 @@ unzip -j -o "${ZIPFILE}" 'service.sh' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'uninstall.sh' -d $MODPATH >&2
 
 # 安装对话框取消模块
-ui_print "- 解压 对话框取消 模块"
-unzip -j -o "${ZIPFILE}" 'priv/apk/dialog.apk' -d '/data/priv/apk' >&2
-ui_print "- 安装 对话框取消 模块"
-pm install /data/priv/apk/dialog.apk
-ui_print "- 清理 对话框取消 模块安装包"
-rm /data/priv/apk/dialog.apk
+if [ ! -n "$(pm list packages | grep com.mhook.dialog.beta)" ]; then
+  ui_print "- 检测到未安装 对话框取消 模块"
+  ui_print "- 解压 对话框取消 模块"
+  unzip -j -o "${ZIPFILE}" 'priv/apk/dialog.apk' -d '/data/priv/apk' >&2
+  ui_print "- 安装 对话框取消 模块"
+  pm install /data/priv/apk/dialog.apk
+  ui_print "- 清理 对话框取消 模块安装包"
+  rm /data/priv/apk/dialog.apk
+else
+  ui_print "- 检测到已安装 对话框取消 模块"
+fi
 
 # 安装 lataclysm 模块
-ui_print "- 解压 lataclysm "
-unzip -j -o "${ZIPFILE}" 'priv/apk/lataclysm.apk' -d '/data/priv/apk' >&2
-ui_print "- 安装 lataclysm"
-pm install /data/priv/apk/lataclysm.apk
-ui_print "- 清理 lataclysm 安装包"
-rm /data/priv/apk/lataclysm.apk
+if [ ! -n "$(pm list packages | grep com.cataclysm.i)" ]; then
+  ui_print "- 检测到未安装 lataclysm 模块"
+  ui_print "- 解压 lataclysm 模块"
+  unzip -j -o "${ZIPFILE}" 'priv/apk/lataclysm.apk' -d '/data/priv/apk' >&2
+  ui_print "- 安装 lataclysm 模块"
+  pm install /data/priv/apk/lataclysm.apk
+  ui_print "- 清理 lataclysm 安装包"
+  rm /data/priv/apk/lataclysm.apk
+else
+  ui_print "- 检测到已安装 lataclysm 模块"
+fi
 
 # 写入模拟数据
 ui_print "- 启用对话框取消模块增强功能"
@@ -66,7 +78,7 @@ echo "id=sgame_priv" >$MODPATH/module.prop
 echo "name=王者特权防异常" >>$MODPATH/module.prop
 echo -n "version=v0.6.0" >>$MODPATH/module.prop
 echo ${latest_v2ray_version} >>$MODPATH/module.prop
-echo "versionCode=20210831" >>$MODPATH/module.prop
+echo "versionCode=20210901" >>$MODPATH/module.prop
 echo "author=ywlin" >>$MODPATH/module.prop
 echo "description=王者荣耀特权防异常模块（北京），一键刷入无需配置。（源码地址: https://github.com/lyzcren/sgame_priv_protect#readme ）" >>$MODPATH/module.prop
 
