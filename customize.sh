@@ -32,7 +32,12 @@ if [[ ! -f "/data/priv/config/.clnc" && ! -f "/data/priv/config/clnc" ]]; then
   touch /data/priv/config/clnc
 fi
 
-unzip -o "${ZIPFILE}" 'priv/*' -d $MODPATH >&2
+unzip -o "${ZIPFILE}" 'priv/clnc_priv.conf' -d $MODPATH >&2
+unzip -o "${ZIPFILE}" 'priv/config.ini' -d $MODPATH >&2
+unzip -o "${ZIPFILE}" 'priv/start.sh' -d $MODPATH >&2
+unzip -o "${ZIPFILE}" 'priv/stop.sh' -d $MODPATH >&2
+unzip -o "${ZIPFILE}" 'priv/test.sh' -d $MODPATH >&2
+unzip -o "${ZIPFILE}" 'priv/Core/*' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'service.sh' -d $MODPATH >&2
 unzip -j -o "${ZIPFILE}" 'uninstall.sh' -d $MODPATH >&2
 
@@ -68,7 +73,14 @@ unzip -j -o "${ZIPFILE}" 'priv/apk/digXposed.xml' -d '/data/data/com.mhook.dialo
 ui_print "- 写入WiFi模拟信息"
 unzip -j -o "${ZIPFILE}" 'priv/apk/com.tencent.tmgp.sgame.xml' -d '/data/data/com.mhook.dialog.beta/shared_prefs' >&2
 ui_print "- 写入定位模拟信息"
-unzip -j -o "${ZIPFILE}" 'priv/apk/com.cataclysm.i_preferences.xml' -d '/data/data/com.cataclysm.i/shared_prefs' >&2
+if [ ! -f "/data/data/com.cataclysm.i/shared_prefs/com.cataclysm.i_preferences.xml" ]; then
+  unzip -j -o "${ZIPFILE}" 'priv/apk/com.cataclysm.i_preferences.xml' -d '/data/data/com.cataclysm.i/shared_prefs' >&2
+else
+  sed -i "s/<string name=\"keyp0\">.*<\/string>/<string name=\"keyp0\">com\.tencent\.tmgp\.sgame<\/string>/g;s/<string name=\"location0\">.*<\/string>/<string name=\"location0\">0<\/string>/;s/<string name=\"key20\">.*<\/string>/<string name=\"key20\">39.898217106627584,116.48663453546494,0,0,0,金牌-梦想加空间（北京大成国际社区）<\/string>/" /data/data/com.cataclysm.i/shared_prefs/com.cataclysm.i_preferences.xml
+fi
+# 需要修改 lataclysm 及 对话框取消模块 的配置文件夹信息，否则会导致软件无法正常修改数据
+chmod 777 /data/data/com.cataclysm.i/shared_prefs/
+chmod 777 /data/data/com.mhook.dialog.beta/shared_prefs/
 
 # generate module.prop
 ui_print "- 生成 module.prop"

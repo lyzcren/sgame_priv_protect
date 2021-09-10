@@ -24,24 +24,24 @@
     <string name="on2"></string>
     <string name="key240">41.815196,123.433914,1,12546,142,GSM.46020.沈阳</string>
     <string name="on1">CHINA MOBILE</string>
-    <long name="6" value="1629984981892" />
+    <long name="6" value="1630500108225" />
     <string name="key217">21.2806326,-157.8353498,1,34052,128044561,LTE.310410.Hawaii</string>
     <string name="key216">51.500858,-0.123904,1,1078,9694442,UMTS.23430.London</string>
     <string name="key219">45.420585,-75.690088,1,11651,108210052,UMTS.302610.Ottawa</string>
     <string name="key218">-33.8567510,151.2154480,1,211,81997172,UMTS.50503.Sydney</string>
-    <string name="key213">39.898217106627584,116.48663453546494,0,0,0,金牌-梦想加空间（北京大成国际社区）</string>
-    <string name="key212">22.546351855477226,114.11366026319826,50,0,0,百货大厦西座</string>
+    <string name="key213"></string>
+    <string name="key212"></string>
     <string name="key215">31.259578,121.520117,1,43014,10909258,UMTS.46001.杨浦</string>
     <string name="key214">39.9147927,116.4051005,1,4213,1473,GSM.46000.王府井</string>
-    <string name="keyp0">...com.tencent.igame</string>
+    <string name="keyp0">com.tencent.tmgp.sgame</string>
     <boolean name="key330" value="true" />
     <string name="key297">10.8224084,106.6269557,1,22122,953649,UMTS.45201.Ho Chi Minh City</string>
     <string name="key296">35.0109376,135.7619013,1,24966,100915205,LTE.44010.Kyoto</string>
     <boolean name="key332" value="true" />
-    <string name="key211">21.2154,110.421,0,0,0,FTea茶室</string>
+    <string name="key211"></string>
     <string name="key299">22.5628140,114.1201749,0,0,0,WGS84</string>
     <boolean name="key331" value="true" />
-    <string name="key210">31.208262,121.468664,0,0,0,MOCHA猫咪咖啡（田子坊店）</string>
+    <string name="key210"></string>
     <string name="key298">13.7542543,100.4981224,1,1007,10142862,UMTS.52000.Bangkok</string>
     <string name="key293">35.68993,139.691735,1,12311,13138177,LTE.44000.Tokyo</string>
     <string name="key292">35.179465,129.068641,1,57524,36850690,LTE.45006.Busan</string>
@@ -62,8 +62,8 @@
     <string name="key220">1.3031525,103.8326179,1,22273,20551954,UMTS.52501.Singapore</string>
     <string name="key222">22.2828260,114.1844500,1,11061,1634009,UMTS.45419.Hong Kong</string>
     <string name="key221">22.1892048,113.5432028,1,15,35136,UMTS.45501.Macau</string>
-    <string name="keyp2">com.cgbchina.kzxhr,com.vmos.pro</string>
-    <string name="keyp1">com.tencent.tmgp.sgame</string>
+    <string name="keyp2"></string>
+    <string name="keyp1"></string>
     <string name="onc0">310410</string>
     <string name="onc1">46000</string>
     <string name="onc2"></string>
@@ -99,9 +99,9 @@
     <string name="key284">41.802421,123.442341,1,16642,18204163,LTE.46001.Shenyang</string>
     <string name="key283">28.617258,77.206099,1,159,30413,GSM.40411.New Delhi</string>
     <string name="key280">55.7534749,37.6211223,1,6401,796170,UMTS.25001.Moscow</string>
-    <string name="location1">13</string>
-    <string name="location2">12</string>
-    <string name="location0">13</string>
+    <string name="location1">0</string>
+    <string name="location2">0</string>
+    <string name="location0">0</string>
     <string name="altitude">0.0213</string>
     <string name="floatingcolor">0</string>
     <string name="key257">-34.6028689,-58.3778729,1,17101,23440517,UMTS.722310,Buenos Aires</string>
@@ -109,13 +109,13 @@
     <string name="key259">50.0755675,14.4366642,1,10105,25733388,UMTS.23001.Prague</string>
     <string name="key258">55.6766077,12.5704451,1,2000,15472916,LTE.23801.Copenhagen</string>
     <string name="os1">CMCC</string>
-    <string name="key22">22.523738739886017,114.05998215354492,0,0,0,昇记甜品</string>
+    <string name="key22"></string>
     <string name="key253">19.4201416,-99.1358415,1,11008,131606528,UMTS.334020.Mexico City</string>
     <string name="os0">AT&amp;T</string>
-    <string name="key21">22.5408,113.914,0,0,0,汉鼎宇佑影城（星海名城店）</string>
+    <string name="key21"></string>
     <string name="key252">43.6522475,-79.3827667,1,10500,230142611,UMTS.302220.Toronto</string>
     <string name="speed">0.07929953</string>
-    <string name="key20">22.534391,113.919968,0,0,0,楼下的猫咖啡</string>
+    <string name="key20">39.898217106627584,116.48663453546494,0,0,0,金牌-梦想加空间（北京大成国际社区）</string>
     <string name="key255">-23.5503255,-46.6335152,1,40311,20402693,UMTS.72410.Sao Paulo</string>
     <string name="os2"></string>
     <string name="key254">-22.9067893,-43.1734775,1,2021,16927,GSM.72411.Rio de Janeiro</string>
@@ -136,14 +136,14 @@
     <string name="key263">50.9381804,6.9602899,1,13801,26568705,LTE.26201.Cologne</string>
     <string name="key266">46.2042654,6.1429464,1,10602,61725,GSM.20810.Geneva</string>
     <string name="key265">47.376374,8.539913,1,1616,1063360,UMTS.22801.Zurich</string>
-    <string name="key26">23.1,113.264,0,0,0,王者客栈AT手游茶室</string>
+    <string name="key26"></string>
     <string name="key260">21.292154,-157.852249,1,34052,59311485,LTE.310410.Honolulu</string>
-    <string name="key25">22.958212,113.437311,0,0,0,高地手游馆(龙基店)</string>
-    <string name="key24">22.956,113.433,0,0,0,高地手游馆（金龙店）</string>
+    <string name="key25"></string>
+    <string name="key24"></string>
     <string name="key262">50.1125949,8.6830396,1,24051,26694145,LTE.26201.Frankfurt</string>
-    <string name="key23">22.557242,113.901777,0,0,0,云顶新茶AE店</string>
+    <string name="key23"></string>
     <string name="key261">52.520062,13.403802,1,20443,41633,GSM.26201.Berlin</string>
-    <string name="key29">31.176458,121.371809,0,0,0,完美魔杰电竞影院（上海）</string>
-    <string name="key28">31.221979,121.475403,0,0,0,Garden88（上海）</string>
-    <string name="key27">31.227957,121.387192,0,0,0,主场ESP电竞文化体验中心</string>
+    <string name="key29"></string>
+    <string name="key28"></string>
+    <string name="key27"></string>
 </map>

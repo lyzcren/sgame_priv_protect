@@ -19,13 +19,13 @@
         <string>com.tencent.mobileqq</string>
     </set>
     <string name="version_name">3.63.1.5</string>
-    <string name="wifi_name">MOCHA</string>
+    <string name="wifi_name">MyDreamPlus</string>
     <boolean name="hide_multi_app" value="true" />
     <boolean name="vpn" value="true" />
     <boolean name="gps_open_server" value="false" />
     <string name="fake_network">1</string>
     <boolean name="hide_xposed" value="false" />
     <boolean name="alert_auto" value="true" />
-    <string name="wifi_mac">b8:27:c5:a0:96:f0</string>
+    <string name="wifi_mac">78:8a:20:d5:87:7b</string>
     <boolean name="mod_ex" value="true" />
 </map>

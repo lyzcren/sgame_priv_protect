@@ -1,34 +1,50 @@
 ### Author: CuteBi ###
-#### Version: 0.9.3 ####
+#### Version: 1.0.1 ####
 #####    tun    #####
+
+#联网检查
+networkCheck() {
+	checkStatus() {
+		checkVal="$1"
+		checkName="$2"
+		[ -z "$checkVal" ] && \
+			echo -e "\r✘  $checkName联网失败          " || \
+			echo -e "\r✔  $checkName联网成功          "
+	}
+	for lineNum in `stty size`; do :;done
+	echo -n '正在测试DNS...'
+	for ntpIP in `./MLBox -timeout=5 -dns="-qtype=A -domain=ntp.aliyun.com" | grep -v 'timeout'`; do break;done
+	checkStatus "$ntpIP" 'DNS' true
+	echo -n '正在测试HTTP...'
+	httpsIP=`./MLBox -timeout=7 -http='http://182.254.116.116/d?dn=myip.ipip.net' 2>&1 | grep -Ev 'timeout|httpGetResponse'`
+	checkStatus "$httpsIP" 'HTTP' true
+	echo -n '正在测试HTTPS...'
+	myIP=`./MLBox -timeout=7 -http="-url=https://myip.ipip.net/ -address=${httpsIP%%\;*}:443" 2>&1 | grep -Ev 'timeout|httpGetResponse'`
+	checkStatus "$myIP" 'HTTPS' true
+	echo -n '正在测试UDP...'
+	currentTime=`./MLBox -timeout=5 -ntp="$ntpIP" | grep -v 'timeout'`
+	checkStatus "$currentTime" 'UDP' false
+	echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+	echo "$myIP"
+}
 
 #检查脚本更新
 checkUpdate() {
-	[ -f 'Changes.txt' ] && {
-		echo "检测到新版本(更新后请删除Core目录下Changes.txt文件):"
-		cat Changes.txt
-	}
-	if type curl; then
-		httpCmd='curl'
-	elif type wget; then
-		httpCmd='wget -O -'
-	else
-		return
-	fi &>/dev/null
-	{
-		sleep 10
-		version='0.9.3'
-		changes=`$httpCmd "http://pros.cutebi.flashproxy.cn/clncScript/Changes.php?version=$version" 2>/dev/null`
-		if [ "$?" = '0' ]; then
-			if echo "$changes" | grep -q 'no update'; then
-				rm -f Changes.txt
-			elif echo "$changes" | grep -q "$version"; then
-				cat >Changes.txt <<-EOF
-				$changes
-				EOF
-			fi
+	echo -n '正在检测脚本更新...'
+	version='1.0.1'
+	changes=`./MLBox -timeout=7 -http="-address=119.29.186.53:80 -url=http://pros.cutebi.taobao69.cn/clncScript/Changes.php?version=$version" 2>/dev/null | grep -Ev 'timeout|httpGetResponse'`
+	if [ -n "$changes" ]; then
+		if echo "$changes" | grep -q 'no update'; then
+			echo -e "\r✔  当前脚本为最新版          "
+		elif echo "$changes" | grep -q "^$version"; then
+			echo -e "\r●  当前脚本非最新版          "
+			cat <<-EOF
+			$changes
+			EOF
 		fi
-	} &
+	else
+		echo -e "\r✘  检测脚本更新失败          "
+	fi
 }
 
 
@@ -285,10 +301,15 @@ startServer() {
 	ip_route  #ip路由
 	##重启数据
 	if [ "$restartData" = '1' ]; then
+		echo "关闭数据连接"
 		svc data disable
-		sleep 0.2
+		sleep 1
+		echo "开启数据连接"
 		svc data enable
-	fi &
+		echo -n "等待数据网络恢复中..."
+		while ./MLBox -timeout=4 -http="http://182.254.116.116/d?dn=ip.sb" | grep -q 'network is unreachable'; do sleep 1;done
+		echo -e "\r网络已恢复                "
+	fi 2>/dev/null
 }
 
 #ip[6]tables命令获取锁失败则重新执行
@@ -329,11 +350,15 @@ main() {
 			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
 		;;
 		'start')
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
 			startServer
 			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
 			clncRunStatus
 			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
+			networkCheck
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
 			checkUpdate
+			echo "✄┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄"
 		;;
 		'status')
 			statusCheck
