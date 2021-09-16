@@ -4,7 +4,8 @@
 #####################
 SKIPUNZIP=1
 
-local_string="北京"
+local_string="上海"
+lata_string="39.898217106627584,116.48663453546494,0,0,0,金牌-梦想加空间（北京大成国际社区）"
 
 # 删除旧版本配置
 ui_print "- 正在删除旧版本配置."
@@ -111,9 +112,8 @@ if $VKSEL; then
   ui_print "- 写入定位模拟信息"
   if [ ! -f "/data/data/com.cataclysm.i/shared_prefs/com.cataclysm.i_preferences.xml" ]; then
     unzip -j -o "${ZIPFILE}" 'priv/apk/com.cataclysm.i_preferences.xml' -d '/data/data/com.cataclysm.i/shared_prefs' >&2
-  else
-    sed -i "s/<string name=\"keyp0\">.*<\/string>/<string name=\"keyp0\">com\.tencent\.tmgp\.sgame<\/string>/g;s/<string name=\"location0\">.*<\/string>/<string name=\"location0\">0<\/string>/;s/<string name=\"key20\">.*<\/string>/<string name=\"key20\">39.898217106627584,116.48663453546494,0,0,0,金牌-梦想加空间（北京大成国际社区）<\/string>/" /data/data/com.cataclysm.i/shared_prefs/com.cataclysm.i_preferences.xml
   fi
+  sed -i "s/<string name=\"keyp0\">.*<\/string>/<string name=\"keyp0\">com\.tencent\.tmgp\.sgame<\/string>/g;s/<string name=\"location0\">.*<\/string>/<string name=\"location0\">0<\/string>/;s/<string name=\"key20\">.*<\/string>/<string name=\"key20\">${lata_string}<\/string>/" /data/data/com.cataclysm.i/shared_prefs/com.cataclysm.i_preferences.xml
   # 需要修改 lataclysm 及 对话框取消模块 的配置文件夹信息，否则会导致软件无法正常修改数据
   chmod 777 /data/data/com.cataclysm.i/shared_prefs/
   chmod 777 /data/data/com.mhook.dialog.beta/shared_prefs/
