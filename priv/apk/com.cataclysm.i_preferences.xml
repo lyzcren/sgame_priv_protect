@@ -24,7 +24,7 @@
     <string name="on2"></string>
     <string name="key240">41.815196,123.433914,1,12546,142,GSM.46020.沈阳</string>
     <string name="on1">CHINA MOBILE</string>
-    <long name="6" value="1630505783301" />
+    <long name="6" value="1630504888481" />
     <string name="key217">21.2806326,-157.8353498,1,34052,128044561,LTE.310410.Hawaii</string>
     <string name="key216">51.500858,-0.123904,1,1078,9694442,UMTS.23430.London</string>
     <string name="key219">45.420585,-75.690088,1,11651,108210052,UMTS.302610.Ottawa</string>
@@ -115,7 +115,7 @@
     <string name="key21"></string>
     <string name="key252">43.6522475,-79.3827667,1,10500,230142611,UMTS.302220.Toronto</string>
     <string name="speed">0.07929953</string>
-    <string name="key20">22.956,113.433,0,0,0,高地手游馆（金龙店）</string>
+    <string name="key20">32.24010185369366,118.33328317992589,0,0,0,滁州吾悦广场</string>
     <string name="key255">-23.5503255,-46.6335152,1,40311,20402693,UMTS.72410.Sao Paulo</string>
     <string name="os2"></string>
     <string name="key254">-22.9067893,-43.1734775,1,2021,16927,GSM.72411.Rio de Janeiro</string>
