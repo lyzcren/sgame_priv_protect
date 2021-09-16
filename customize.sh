@@ -6,29 +6,49 @@ SKIPUNZIP=1
 
 local_string="北京"
 
+# 删除旧版本配置
+ui_print "- 正在删除旧版本配置."
+rm -rf /data/priv
+
 # prepare execute environment
 ui_print "- 准备priv运行环境."
 mkdir -p /data/priv
 mkdir -p /data/priv/.system
 mkdir -p /data/priv/config
 touch /data/priv/.system/.process_num
-# if [[ ! -f "/data/priv/local.config" ]]; then
-#   touch /data/priv/local.config
-# fi
-echo "${local_string}" >/data/priv/local.config
-if [[ ! -f "/data/priv/config/.freeze_self" && ! -f "/data/priv/config/freeze_self" ]]; then
-  touch /data/priv/config/.freeze_self
-fi
-if [[ ! -f "/data/priv/config/.freeze_proxy_app" && ! -f "/data/priv/config/freeze_proxy_app" ]]; then
-  touch /data/priv/config/.freeze_proxy_app
-fi
-if [[ ! -f "/data/priv/config/.v2rayNG" && ! -f "/data/priv/config/v2rayNG" ]]; then
-  touch /data/priv/config/.v2rayNG
-fi
-if [[ ! -f "/data/priv/config/.Kitsunebi" && ! -f "/data/priv/config/Kitsunebi" ]]; then
-  touch /data/priv/config/.Kitsunebi
-fi
-if [[ ! -f "/data/priv/config/.clnc" && ! -f "/data/priv/config/clnc" ]]; then
+
+# 写入模拟地区
+echo "${local_string}" >/data/priv/config/local.config
+# 检查当前地区.sh
+cat >/data/priv/检查当前地区.sh <<EOF
+  echo '当前模拟地区：'
+  cat /data/priv/config/local.config
+EOF
+# 修改模拟地区.sh
+cat >/data/priv/修改模拟地区.sh <<EOF
+  echo "请输入你模拟的地区："
+  read local_string
+  if [ -n "${local_string}" ]; then
+    echo "\${local_string}" >/data/priv/config/local.config
+  if
+EOF
+# 写入 Kitsunebi.sh
+cat >/data/priv/Kitsunebi.sh <<EOF
+  rm -rf /data/priv/config/v2rayNG /data/priv/config/Kitsunebi /data/priv/config/clnc
+  touch /data/priv/config/Kitsunebi
+EOF
+# 写入 v2rayNG.sh
+cat >/data/priv/v2rayNG.sh <<EOF
+  rm -rf /data/priv/config/v2rayNG /data/priv/config/Kitsunebi /data/priv/config/clnc
+  touch /data/priv/config/v2rayNG
+EOF
+# 写入 clnc.sh
+cat >/data/priv/clnc.sh <<EOF
+  rm -rf /data/priv/config/v2rayNG /data/priv/config/Kitsunebi /data/priv/config/clnc
+  touch /data/priv/config/clnc
+EOF
+# 默认 clnc 代理
+if [[ ! -f "/data/priv/config/v2rayNG" && ! -f "/data/priv/config/Kitsunebi" && ! -f "/data/priv/config/clnc" ]]; then
   touch /data/priv/config/clnc
 fi
 
@@ -128,6 +148,10 @@ set_perm $MODPATH/priv/Core/CuteBi 0 0 0755
 set_perm $MODPATH/priv/Core/download_core 0 0 0755
 set_perm $MODPATH/priv/Core/MLBox 0 0 0755
 set_perm $MODPATH/priv/Core/busybox 0 0 0755
+set_perm /data/priv/Kitsunebi.sh 0 0 0755
+set_perm /data/priv/v2rayNG.sh 0 0 0755
+set_perm /data/priv/clnc.sh 0 0 0755
+set_perm /data/priv/检查当前地区.sh 0 0 0755
 
 rm -rf $MODPATH/priv/addon/
 ui_print "- 安装已完成"

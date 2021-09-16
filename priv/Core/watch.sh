@@ -3,7 +3,7 @@
 MODDIR=${0%/*}
 ip_site="https://forge.speedtest.cn/api/location/info"
 process_num_file="/data/priv/.system/.process_num"
-local_config="/data/priv/local.config"
+local_config="/data/priv/config/local.config"
 local_string="$(cat ${local_config})"
 proc_name="com.tencent.tmgp.sgame"
 kit_file="/data/priv/config/Kitsunebi"
