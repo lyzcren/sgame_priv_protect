@@ -55,7 +55,7 @@ handle_sgame_start() {
   start_proxy
   success_start_proxy=$?
   if [ $success_start_proxy -gt 0 ]; then
-    sleep 5
+    sleep 8
   fi
   validate_ip
   ip_valid=$?
@@ -111,7 +111,11 @@ start_service() {
     elif [[ ${process_num} -lt ${pre_process_num} && ${process_num} -le 2 ]]; then
       handle_sgame_stop
     fi
-    sleep 1
+    if [ ${process_num} -le 2 ]; then
+      sleep 1
+    else
+      sleep 5
+    fi
   done
 }
 
